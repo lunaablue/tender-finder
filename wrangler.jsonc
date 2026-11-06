@@ -1,0 +1,15 @@
+// Wrangler is Cloudflare's command-line tool. This file tells it how to build and run the Worker.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // The name of the Worker. It becomes part of its web address.
+  "name": "tender-finder",
+  // The file where the Worker's code starts.
+  "main": "src/index.ts",
+  // The date the Worker's runtime rules were set. Keep it as is.
+  "compatibility_date": "2025-01-01",
+  // Cron triggers run the Worker on a schedule.
+  // "0 6 * * *" means every day at 06:00 UTC. This is a placeholder: it does nothing yet.
+  "triggers": {
+    "crons": ["0 6 * * *"]
+  }
+}

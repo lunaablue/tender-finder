@@ -1,0 +1,5 @@
+# Copy this file to .dev.vars and fill in real values for local testing.
+# .dev.vars is gitignored, so Git never uploads your real values.
+# Only names are listed here. Never put real values in this example file.
+#
+# AI_API_KEY=

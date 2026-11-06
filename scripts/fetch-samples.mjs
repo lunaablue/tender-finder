@@ -77,21 +77,23 @@ async function fetchFindATender() {
 
 // --- Contracts Finder (OCDS search) ------------------------------------------
 // Pages are numbered, starting at 1. We stop when a page has no notices.
+// The page number is ignored by this service, so we follow the "next" link
+// (which holds a cursor) instead, the same way as Find a Tender.
 async function fetchContractsFinder() {
-  for (let page = 1; page <= maxPagesPerSource; page++) {
-    const params = new URLSearchParams({
-      publishedFrom: day,      // parameter name to check in the official docs
-      publishedTo: nextDay,    // end date is the day AFTER, in case the end date is exclusive
-      page: String(page),      // paging parameter to check in the official docs
-    });
-    const url = `https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?${params}`;
+  const params = new URLSearchParams({
+    publishedFrom: day,      // parameter name to check in the official docs
+    publishedTo: nextDay,    // end date is the day AFTER, in case the end date is exclusive
+    limit: "100",
+  });
+  let url = `https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?${params}`;
+
+  for (let page = 1; page <= maxPagesPerSource && url; page++) {
     const data = await getJson(url);
     await savePage(`contracts-finder-${day}-page${page}.json`, data);
-
-    // Stop when the page is empty. The field names below are to be checked.
+    // Stop when there is no next link, or the page is empty.
     const count = Array.isArray(data?.releases) ? data.releases.length : 0;
-    if (count === 0) break;
-    await wait(pauseMs);
+    url = count > 0 ? (data?.links?.next ?? null) : null;
+    if (url) await wait(pauseMs);
   }
 }
 

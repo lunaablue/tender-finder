@@ -203,3 +203,10 @@ Seven points in this plan are my own defaults rather than stated requirements, a
 - Which email service to use for the optional digest.
 - Which CPV codes to add to the topic filter, once real notices have been inspected.
 - **Decided:** add the Scottish, Welsh and Northern Irish portals later, once the tool is proven on Find a Tender and Contracts Finder.
+
+### Decisions from the step 2 data check
+
+- **Duplicates across sources:** match notices on title and buyer (ignoring case and extra spaces), then keep one copy. The notice IDs differ between the two services, so IDs cannot be used.
+- **Value:** use the value before tax (`tender.value.amount`), not the gross figure. Check this against Contracts Finder before relying on it.
+- **No category:** drop notices with no `mainProcurementCategory`.
+- **Awards:** filter out award notices (the `award`, `contract`, `awardUpdate` and `contractUpdate` tags). Other non-open tags (cancellations, termination and implementation notices) are not covered by this decision and still need a rule.

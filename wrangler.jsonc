@@ -7,6 +7,11 @@
   "main": "src/index.ts",
   // The date the Worker's runtime rules were set. Keep it as is.
   "compatibility_date": "2025-01-01",
+  // Settings the Worker reads at runtime.
+  // DAYS_BACK: how many days of notices to fetch (the window starts at midnight UTC that many days ago).
+  "vars": {
+    "DAYS_BACK": "2"
+  },
   // Cron triggers run the Worker on a schedule.
   // "0 6 * * *" means every day at 06:00 UTC. This is a placeholder: it does nothing yet.
   "triggers": {

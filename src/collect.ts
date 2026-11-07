@@ -4,7 +4,8 @@
 import { sleep, PAUSE_MS } from "./http.ts";
 import { daysBackFrom, windowFor } from "./window.ts";
 import { fetchContractsFinder, fetchFindTender } from "./sources.ts";
-import { dropAwards, normaliseRelease, removeDuplicates } from "./normalise.ts";
+import { normaliseRelease } from "./normalise.ts";
+import { runPreFilter } from "./prefilter.ts";
 import type { Notice } from "./types.ts";
 
 export interface CollectResult {
@@ -16,7 +17,12 @@ export interface CollectResult {
     normalised: number;
     awardsDropped: number;
     duplicatesRemoved: number;
+    removedByCategory: number;
+    removedByDeadline: number;
+    removedAsPollingOrResearch: number;
+    removedNotOnTopic: number;
     kept: number;
+    lowPriorityFlagged: number;
   };
   notices: Notice[];
 }
@@ -36,23 +42,41 @@ export async function collectNotices(env: { DAYS_BACK?: string }, now: Date): Pr
     ...contractsFinder.map((r) => normaliseRelease(r, "contracts-finder")),
   ];
 
-  const withoutAwards = dropAwards(normalised);
-  const kept = removeDuplicates(withoutAwards);
+  // Run every pre-filter rule, and get back how many notices each one removed.
+  const filtered = runPreFilter(normalised, now);
+  const c = filtered.counts;
 
   const counts = {
     findTenderReleases: findTender.length,
     contractsFinderReleases: contractsFinder.length,
     normalised: normalised.length,
-    awardsDropped: normalised.length - withoutAwards.length,
-    duplicatesRemoved: withoutAwards.length - kept.length,
-    kept: kept.length,
+    awardsDropped: c.removedByStage,
+    duplicatesRemoved: c.removedDuplicates,
+    removedByCategory: c.removedByCategory,
+    removedByDeadline: c.removedByDeadline,
+    removedAsPollingOrResearch: c.removedAsPollingOrResearch,
+    removedNotOnTopic: c.removedNotOnTopic,
+    kept: c.kept,
+    lowPriorityFlagged: c.lowPriorityFlagged,
   };
+
+  // Log what each rule did, so you can see why a notice went missing.
+  console.log(
+    `Pre-filter: ${normalised.length} in, ` +
+      `${counts.awardsDropped} dropped as not open/pipeline (stage), ` +
+      `${counts.duplicatesRemoved} duplicates, ` +
+      `${counts.removedByCategory} not services (category), ` +
+      `${counts.removedByDeadline} closing in under 3 days, ` +
+      `${counts.removedAsPollingOrResearch} polling/research, ` +
+      `${counts.removedNotOnTopic} not on topic, ` +
+      `${counts.kept} kept, ${counts.lowPriorityFlagged} flagged low priority`,
+  );
   console.log("Counts:", JSON.stringify(counts));
 
   return {
     daysBack,
     window: { from: w.fromIso, to: w.toIso },
     counts,
-    notices: kept,
+    notices: filtered.kept,
   };
 }

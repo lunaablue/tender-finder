@@ -1,9 +1,7 @@
 // Saving notices and run logs to the D1 database.
 
+import { isLowPriority } from "./prefilter.ts";
 import type { Notice } from "./types.ts";
-
-// Notices with a stated value under this amount (GBP, before tax) are flagged as lower priority.
-const LOW_PRIORITY_BELOW_GBP = 5_000_000;
 
 // How many inserts to send to the database in one batch.
 const BATCH_SIZE = 50;
@@ -36,7 +34,7 @@ export async function saveNewNotices(db: D1Database, notices: Notice[], firstSee
       n.url,
       n.publishedDate,
       firstSeenAt,
-      n.value !== null && n.value < LOW_PRIORITY_BELOW_GBP ? 1 : 0,
+      isLowPriority(n) ? 1 : 0,
     ),
   );
 

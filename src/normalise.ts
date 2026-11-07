@@ -65,11 +65,6 @@ export function normaliseRelease(release: Release, source: Source): Notice {
   };
 }
 
-// Drop contract award notices.
-export function dropAwards(notices: Notice[]): Notice[] {
-  return notices.filter((n) => n.stage !== "award");
-}
-
 // Make text comparable: lower case, and single spaces with no spaces at the ends.
 function comparable(text: string): string {
   return text.toLowerCase().replace(/\s+/g, " ").trim();

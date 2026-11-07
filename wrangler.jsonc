@@ -12,6 +12,17 @@
   "vars": {
     "DAYS_BACK": "2"
   },
+  // The D1 database (a small SQL database). "DB" is the name the code uses.
+  // database_id is a placeholder for local testing. Before deploying, replace it with
+  // the real ID from "npx wrangler d1 create tender-finder" (keep the real ID out of public docs).
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tender-finder",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
   // Cron triggers run the Worker on a schedule.
   // "0 6 * * *" means every day at 06:00 UTC. This is a placeholder: it does nothing yet.
   "triggers": {

@@ -145,3 +145,6 @@ samples/
 
 # macOS folder settings file (not part of the project)
 .DS_Store
+
+# Wrangler local development data (local database, cache, build files)
+.wrangler/
